@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infinte Ocean FM</title>
+
+<style>
+:root {
+  --primary: #ffffff;
+  --accent: #ff6fa5;
+  --bg1: #0f2027;
+  --bg2: #203a43;
+  --bg3: #2c5364;
+  --glass: rgba(255,255,255,0.08);
+  --blur: blur(20px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(-45deg, var(--bg1), var(--bg2), var(--bg3));
+  background-size: 400% 400%;
+  animation: gradientShift 25s ease infinite;
+  color: var(--primary);
+  overflow: hidden;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.radio-container {
+  width: 95%;
+  max-width: 420px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.station-header {
+  text-align: center;
+}
+
+.station-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.live-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--accent);
+  font-size: 0.7rem;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: .6; }
+  100% { opacity: 1; }
+}
+
+.metadata {
+  text-align: center;
+}
+
+.track-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.track-version {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  width: 0%;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s linear;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  color: var(--primary);
+  transition: 0.3s;
+}
+
+button:hover {
+  background: var(--accent);
+}
+
+.slider {
+  width: 100%;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+.dedication-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 500;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+  text-align: center;
+  padding: 20px;
+}
+
+.dedication-overlay.active {
+  opacity: 1;
+}
+
+
+footer {
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+  .radio-container {
+    padding: 20px;
+  }
+}
+
+/* Playlist Modal */
+
+.playlist-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 999;
+}
+
+.playlist-modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.playlist-panel {
+  width: 95%;
+  max-width: 480px;
+  max-height: 80vh;
+  background: rgba(20, 30, 40, 0.95);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.playlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.playlist-header h3 {
+  font-weight: 500;
+}
+
+.playlist-header button {
+  background: none;
+  font-size: 1.2rem;
+}
+
+.preset-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.preset-filters button {
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+}
+
+.playlist-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+}
+
+.track-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.track-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.track-item input {
+  transform: scale(1.2);
+}
+
+.playlist-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.start-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.start-overlay button {
+  padding: 18px 28px;
+  font-size: 1.2rem;
+  border-radius: 30px;
+  border: none;
+  background: #ff6fa5;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+
+  /* Prevent stretching */
+  width: auto;
+  max-width: 80%;
+  align-self: center;
+}
+.start-overlay button:hover {
+  transform: scale(1.05);
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="radio-container">
+
+  <div class="station-header">
+    <div class="station-title">Infinite Ocean FM ♥</div>
+    <div class="live-badge">LIVE</div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress" id="progressBar"></div>
+  </div>
+
+  <div class="metadata">
+    <div class="track-title" id="trackTitle">Current Playlist</div>
+    <div class="track-version" id="trackVersion">All</div>
+  </div>
+
+  <div class="controls">
+
+
+
+    <div class="button-group">
+        <button id="openPlaylistManager">Manage Playlist</button>
+    </div>
+
+
+        <div class="slider">
+      <input type="range" id="volumeControl" min="0" max="100" value="70">
+    </div>
+
+  </div>
+
+  <footer>
+    Island Valentine Broadcast
+  </footer>
+
+</div>
+
+<div class="dedication-overlay" id="dedicationOverlay">
+  For you. Always.
+</div>
+
+
+<!-- Dual audio elements for crossfade -->
+<audio id="audioA"></audio>
+<audio id="audioB"></audio>
+
+<!-- Ambient ocean layer -->
+<audio id="oceanAmbience" loop></audio>
+
+<div class="playlist-modal" id="playlistModal">
+
+  <div class="playlist-panel">
+
+    <div class="playlist-header">
+      <h3>Playlist Manager</h3>
+      <button id="closePlaylistManager">✕</button>
+    </div>
+
+    <div class="preset-filters">
+      <button data-preset="english">English</button>
+      <button data-preset="polynesian">Polynesian</button>
+      <button data-preset="instrumental">Instrumental</button>
+    </div>
+
+    <div class="playlist-list">
+
+
+    </div>
+
+    <div class="playlist-footer">
+      <button id="selectAll">Select All</button>
+      <button id="clearAll">Clear All</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="start-overlay" id="startOverlay">
+  <button id="startButton">Start Infinite Ocean FM ♥</button>
+</div>
+
+<script>
+/* =========================
+   Dummy Playlist Data
+========================= */
+let currentPreset = "all";
+
+
+const tracks = [
+  // Moana / Vaiana (2016)
+  { title: "Tulou Tagaloa", type: "polynesian", src: "audio/tulou_tagaloa.mp3" },
+  { title: "An Innocent Warrior", type: "polynesian", src: "audio/an_innocent_warrior.mp3" },
+  { title: "Where You Are", type: "english", src: "audio/where_you_are.mp3" },
+  { title: "How Far I'll Go", type: "english", src: "audio/how_far_ill_go.mp3" },
+  { title: "We Know The Way", type: "polynesian", src: "audio/we_know_the_way.mp3" },
+  { title: "You're Welcome", type: "english", src: "audio/youre_welcome.mp3" },
+  { title: "Shiny", type: "english", src: "audio/shiny.mp3" },
+  { title: "I Am Moana (Song of the Ancestors)", type: "english", src: "audio/i_am_moana.mp3" },
+  { title: "Know Who You Are", type: "english", src: "audio/know_who_you_are.mp3" },
+  { title: "We Know The Way (Finale)", type: "polynesian", src: "audio/we_know_the_way_finale.mp3" },
+
+  // Moana 2 (2024)
+  { title: "Tulou Tagaloa (Moana 2)", type: "polynesian", src: "audio/moana2_tulou_tagaloa.mp3" },
+  { title: "We're Back", type: "english", src: "audio/were_back.mp3" },
+  { title: "Tuputupu (The Feast)", type: "polynesian", src: "audio/tuputupu_the_feast.mp3" },
+  { title: "Beyond", type: "english", src: "audio/beyond.mp3" },
+  { title: "My Wish For You (Innocent Warrior)", type: "polynesian", src: "audio/my_wish_for_you.mp3" },
+  { title: "Finding The Way", type: "polynesian", src: "audio/finding_the_way.mp3" },
+  { title: "What Could Be Better Than This?", type: "english", src: "audio/what_could_be_better_than_this.mp3" },
+  { title: "Get Lost", type: "english", src: "audio/get_lost.mp3" },
+  { title: "Can I Get A Chee Hoo?", type: "english", src: "audio/can_i_get_a_chee_hoo.mp3" },
+  { title: "Mana Vavau", type: "polynesian", src: "audio/mana_vavau.mp3" },
+  { title: "Nuku O Kaiga", type: "polynesian", src: "audio/nuku_o_kaiga.mp3" },
+  { title: "We Know The Way (Te Fenua te Malie)", type: "polynesian", src: "audio/we_know_the_way_te_fenua_te_malie.mp3" },
+  { title: "Beyond (End Credit Version)", type: "english", src: "audio/beyond_end_credit.mp3" }
+];
+
+/* =========================
+   DOM References
+========================= */
+
+const modal = document.getElementById("playlistModal");
+const openBtn = document.getElementById("openPlaylistManager");
+const closeBtn = document.getElementById("closePlaylistManager");
+const presetButtons = document.querySelectorAll(".preset-filters button");
+const playlistList = document.querySelector(".playlist-list");
+const selectAllBtn = document.getElementById("selectAll");
+const clearAllBtn = document.getElementById("clearAll");
+
+const audioA = document.getElementById("audioA");
+const audioB = document.getElementById("audioB");
+const volumeSlider = document.getElementById("volumeControl");
+const trackTitle = document.getElementById("trackTitle");
+const trackVersion = document.getElementById("trackVersion");
+const progressBar = document.getElementById("progressBar");
+
+/* =========================
+   State
+========================= */
+
+let activeAudio = audioA;
+let inactiveAudio = audioB;
+let activePlaylist = [];
+let currentIndex = 0;
+let crossfadeTime = 3000;
+
+/* =========================
+   Build Playlist UI
+========================= */
+
+function buildPlaylistUI() {
+  playlistList.innerHTML = "";
+  tracks.forEach((track, index) => {
+    const label = document.createElement("label");
+    label.className = "track-item";
+    label.dataset.type = track.type;
+
+    label.innerHTML = `
+      <input type="checkbox" data-index="${index}" checked>
+      <span>${track.title}</span>
+    `;
+
+    playlistList.appendChild(label);
+  });
+}
+
+buildPlaylistUI();
+
+/* =========================
+   Modal Controls
+========================= */
+
+openBtn.onclick = () => modal.classList.add("active");
+closeBtn.onclick = () => modal.classList.remove("active");
+
+/* =========================
+   Preset Filtering
+========================= */
+presetButtons.forEach(btn => {
+  btn.onclick = () => {
+    const preset = btn.dataset.preset;
+    currentPreset = preset;
+
+    document.querySelectorAll(".track-item").forEach(item => {
+      const checkbox = item.querySelector("input");
+
+      if (preset === "all") {
+        // check all tracks
+        checkbox.checked = true;
+      } else if (item.dataset.type === preset) {
+        // check tracks matching preset
+        checkbox.checked = true;
+      } else {
+        // uncheck all others
+        checkbox.checked = false;
+      }
+    });
+
+    updateActivePlaylist();
+  };
+});
+
+/* =========================
+   Select / Clear
+========================= */
+
+selectAllBtn.onclick = () => {
+  document.querySelectorAll(".track-item input").forEach(cb => cb.checked = true);
+  updateActivePlaylist();
+};
+
+clearAllBtn.onclick = () => {
+  document.querySelectorAll(".track-item input").forEach(cb => cb.checked = false);
+  updateActivePlaylist();
+};
+
+playlistList.addEventListener("change", updateActivePlaylist);
+
+/* =========================
+   Playlist Logic
+========================= */
+
+function updateActivePlaylist() {
+  activePlaylist = [];
+  document.querySelectorAll(".track-item input:checked").forEach(cb => {
+    const parent = cb.closest(".track-item");
+    // only include if matches current preset OR preset=all
+    if (currentPreset === "all" || parent.dataset.type === currentPreset) {
+      activePlaylist.push(tracks[cb.dataset.index]);
+    }
+  });
+
+  // save all selections for persistence
+  localStorage.setItem("selectedTracks", JSON.stringify(
+    [...document.querySelectorAll(".track-item input")].map(cb => cb.checked)
+  ));
+}
+
+function restoreSelection() {
+  const saved = JSON.parse(localStorage.getItem("selectedTracks"));
+  if (!saved) return;
+  document.querySelectorAll(".track-item input").forEach((cb, i) => {
+    cb.checked = saved[i];
+  });
+}
+
+restoreSelection();
+updateActivePlaylist();
+
+/* =========================
+   Audio Engine
+========================= */
+
+function playTrack(track) {
+  if (!track) return;
+
+  inactiveAudio.src = track.src;
+  inactiveAudio.volume = 0;
+  inactiveAudio.play();
+
+  fade(inactiveAudio, activeAudio);
+
+  trackTitle.textContent = track.title;
+  trackVersion.textContent = track.type;
+}
+
+function fade(fadeIn, fadeOut) {
+  let step = 50;
+  let increment = step / crossfadeTime;
+
+  let fadeInterval = setInterval(() => {
+    if (fadeIn.volume < volumeSlider.value / 100) {
+      fadeIn.volume += increment;
+    }
+    if (fadeOut.volume > 0) {
+      fadeOut.volume -= increment;
+    }
+  }, step);
+
+  setTimeout(() => {
+    clearInterval(fadeInterval);
+    fadeOut.pause();
+    swapAudio();
+  }, crossfadeTime);
+}
+
+function swapAudio() {
+  [activeAudio, inactiveAudio] = [inactiveAudio, activeAudio];
+}
+
+function nextTrack() {
+  if (activePlaylist.length === 0) return;
+  currentIndex = (currentIndex + 1) % activePlaylist.length;
+  playTrack(activePlaylist[currentIndex]);
+}
+
+audioA.onended = nextTrack;
+audioB.onended = nextTrack;
+
+/* =========================
+   Start Playback
+========================= */
+
+function startRadio() {
+  if (activePlaylist.length === 0) return;
+  playTrack(activePlaylist[currentIndex]);
+}
+
+//startRadio();
+// start after user clicks
+const startOverlay = document.getElementById("startOverlay");
+const startButton = document.getElementById("startButton");
+
+startButton.addEventListener("click", () => {
+
+  // Required for iOS/Safari: play & pause silently to unlock
+  activeAudio.play().then(() => {
+    activeAudio.pause();
+  }).catch(() => {});
+
+  inactiveAudio.play().then(() => {
+    inactiveAudio.pause();
+  }).catch(() => {});
+
+  startOverlay.style.display = "none";
+
+  startRadio();
+});
+
+
+/* =========================
+   Volume Control
+========================= */
+
+volumeSlider.oninput = () => {
+  const vol = volumeSlider.value / 100;
+  activeAudio.volume = vol;
+  localStorage.setItem("volume", vol);
+};
+
+function restoreVolume() {
+  const saved = localStorage.getItem("volume");
+  if (!saved) return;
+  volumeSlider.value = saved * 100;
+  activeAudio.volume = saved;
+}
+
+restoreVolume();
+
+/* =========================
+   Progress Bar
+========================= */
+
+setInterval(() => {
+  if (!activeAudio.duration) return;
+  const percent = (activeAudio.currentTime / activeAudio.duration) * 100;
+  progressBar.style.width = percent + "%";
+}, 500);
+</script>
+
+
+</body>
+</html>
